@@ -12,10 +12,10 @@ import (
 )
 
 var (
-	domain  = flag.String("domain", "", "Domain to notify, required")
-	verbose = flag.Bool("verbose", false, "Be extra verbose")
-	quiet   = flag.Bool("quiet", false, "Only output on errors")
-	timeout = flag.Int64("timeout", 2000, "Timeout for response (in milliseconds)")
+	domainFlag = flag.String("domain", "", "Domain to notify, required")
+	verbose    = flag.Bool("verbose", false, "Be extra verbose")
+	quiet      = flag.Bool("quiet", false, "Only output on errors")
+	timeout    = flag.Int64("timeout", 2000, "Timeout for response (in milliseconds)")
 )
 
 func main() {
@@ -24,13 +24,19 @@ func main() {
 
 	servers := flag.Args()
 
-	if len(*domain) == 0 {
+	if len(*domainFlag) == 0 {
 		flag.Usage()
 		os.Exit(2)
 	}
 
-	if !strings.HasSuffix(*domain, ".") {
-		*domain = *domain + "."
+	sendNotify(servers, *domainFlag)
+
+}
+
+func sendNotify(servers []string, domain string) {
+
+	if !strings.HasSuffix(domain, ".") {
+		domain = domain + "."
 	}
 
 	if len(servers) == 0 {
@@ -41,7 +47,7 @@ func main() {
 	c.ReadTimeout = time.Duration(*timeout) * time.Millisecond
 
 	m := new(dns.Msg)
-	m.SetNotify(*domain)
+	m.SetNotify(domain)
 
 	wg := new(sync.WaitGroup)
 

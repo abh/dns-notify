@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/coocood/jas"
 	"io/ioutil"
 	. "launchpad.net/gocheck"
 	"net/http"
@@ -30,7 +29,12 @@ func (s *HttpSuite) TearDownSuite(c *C) {
 	s.srv.Close()
 }
 
-func (s *HttpSuite) request(c *C, path, data string) (*jas.Response, error) {
+type jsResponse struct {
+	http *http.Response
+	js   map[string]interface{}
+}
+
+func (s *HttpSuite) request(c *C, path, data string) (*jsResponse, error) {
 	uri := *s.uri
 	uri.Path = path
 
@@ -46,9 +50,13 @@ func (s *HttpSuite) request(c *C, path, data string) (*jas.Response, error) {
 	if p, err := ioutil.ReadAll(resp.Body); err != nil {
 		return nil, err
 	} else {
-		js := new(jas.Response)
-		err = json.Unmarshal(p, &js)
-		return js, err
+
+		r := new(jsResponse)
+
+		r.http = resp
+
+		err = json.Unmarshal(p, &r.js)
+		return r, err
 	}
 }
 
@@ -56,13 +64,13 @@ func (s *HttpSuite) TestNotify(c *C) {
 
 	resp, err := s.request(c, "/api/v1/notify/example.com", "{}")
 	c.Assert(err, IsNil)
-	c.Check(resp.Error, Equals, "No servers")
+	c.Check(resp.js["Error"], Equals, "No servers")
 
 	// no DNS server here, connection refused
 	servers = []string{"127.0.0.1:55"}
 
 	resp, err = s.request(c, "/api/v1/notify/example.com", "{}")
 	c.Assert(err, IsNil)
-	c.Check(resp.Error, Matches, "^read udp 127.0.0.1:.*: connection refused")
+	c.Check(resp.js["Error"], Matches, "^read udp 127.0.0.1:.*: connection refused")
 
 }

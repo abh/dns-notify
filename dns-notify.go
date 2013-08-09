@@ -162,7 +162,6 @@ func sendNotify(servers []string, domain string) []NotifyResponse {
 			result.Result = fmt.Sprintf("%s: %s (%s)",
 				target, ok, rtt.String())
 
-			responseChannel <- result
 		}(server)
 
 	}

@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -118,8 +117,6 @@ func sendNotify(servers []string, domain string) []NotifyResponse {
 	m := new(dns.Msg)
 	m.SetNotify(domain)
 
-	wg := new(sync.WaitGroup)
-
 	responseChannel := make(chan NotifyResponse, len(servers))
 
 	for _, server := range servers {
@@ -128,10 +125,7 @@ func sendNotify(servers []string, domain string) []NotifyResponse {
 
 			result := NotifyResponse{Server: server}
 
-			wg.Add(1)
-
 			defer func() {
-				wg.Done()
 				if result.Error || !*quiet {
 					fmt.Printf("%s: %s\n", result.Server, result.Result)
 				}
@@ -178,8 +172,6 @@ func sendNotify(servers []string, domain string) []NotifyResponse {
 	for i := 0; i < len(servers); i++ {
 		responses[i] = <-responseChannel
 	}
-
-	wg.Wait()
 
 	return responses
 

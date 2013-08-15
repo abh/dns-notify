@@ -12,6 +12,18 @@ Then run
 
 That should put the binary into $GOPATH/bin/dns-notify
 
+## API
+
+If started with the `-listen` parameter the program runs an HTTP server with an API
+for sending notifies.
+
+The path for the POST requests is`/api/v1/notify/example.com`. The server will use the
+servers specified on startup, but the domain is taken from the API request.
+
+    curl -XPOST -s http://localhost:8765/api/v1/example.com
+
+The response is JSON and includes the result of each NOTIFY sent.
+
 ## Usage
 
 Specify the domain to notify with the -domain parameter and then the servers to notify.
@@ -31,3 +43,7 @@ Only output on errors.
 * -timeout
 
 How long to wait for responses, defaults to 2000 milliseconds (2 seconds).
+
+## Error handling
+
+Errors are reported, but requests are not retried.

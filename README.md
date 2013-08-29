@@ -26,11 +26,21 @@ The response is JSON and includes the result of each NOTIFY sent.
 
 ## Usage
 
+
+### Send a notify mode
+ 
 Specify the domain to notify with the -domain parameter and then the servers to notify.
 
     dns-notify -domain=example.com 127.0.0.1 10.0.0.1 192.168.0.1:5053 [2001:1::2]:53
 
-Optional parameters:
+### Daemon mode
+
+To start dns-notify in daemon mode, specify the `-listen` parameter
+instead of `-domain`.
+
+   dns-notify -listen=10.0.0.1:8050 127.0.0.1 10.0.0.1
+
+### Optional parameters
 
 * -verbose
 

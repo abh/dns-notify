@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/ant0ine/go-json-rest"
+	"github.com/ant0ine/go-json-rest/rest"
 	"github.com/miekg/dns"
 	"net"
 	"net/http"
@@ -64,7 +64,7 @@ func buildMux() *http.ServeMux {
 	//restHandler.EnableStatusService = true
 
 	restHandler.SetRoutes(
-		rest.Route{"POST", "/api/v1/notify/*domain", notifyHandler},
+		&rest.Route{"POST", "/api/v1/notify/*domain", notifyHandler},
 	)
 
 	mux.Handle("/api/v1/", &restHandler)
@@ -79,7 +79,7 @@ func startHttp(listen string) {
 	fmt.Printf("Could not listen to %s: %s", listen, err)
 }
 
-func notifyHandler(w *rest.ResponseWriter, r *rest.Request) {
+func notifyHandler(w rest.ResponseWriter, r *rest.Request) {
 
 	domain := r.PathParam("domain")
 

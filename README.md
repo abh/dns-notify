@@ -28,7 +28,7 @@ The response is JSON and includes the result of each NOTIFY sent.
 
 
 ### Send a notify mode
- 
+
 Specify the domain to notify with the -domain parameter and then the servers to notify.
 
     dns-notify -domain=example.com 127.0.0.1 10.0.0.1 192.168.0.1:5053 [2001:1::2]:53

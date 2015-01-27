@@ -24,7 +24,6 @@ func (s *HTTPSuite) SetUpSuite(c *C) {
 	s.mux = buildMux()
 	s.srv = httptest.NewServer(s.mux)
 	s.uri, _ = url.Parse(s.srv.URL)
-
 }
 
 func (s *HTTPSuite) TearDownSuite(c *C) {
@@ -56,18 +55,19 @@ func (s *HTTPSuite) request(c *C, path, data string) (*jsResponse, error) {
 
 	c.Check(resp.StatusCode, Equals, 200)
 
-	if p, err := ioutil.ReadAll(resp.Body); err != nil {
+	var p []byte
+
+	if p, err = ioutil.ReadAll(resp.Body); err != nil {
 		log.Println("error from ReadAll(), read", string(p))
 		return nil, err
-	} else {
-
-		r := new(jsResponse)
-
-		r.http = resp
-
-		err = json.Unmarshal(p, &r.js)
-		return r, err
 	}
+
+	r := new(jsResponse)
+
+	r.http = resp
+
+	err = json.Unmarshal(p, &r.js)
+	return r, err
 }
 
 func (s *HTTPSuite) TestNotify(c *C) {

@@ -43,7 +43,7 @@ func main() {
 	servers = flag.Args()
 
 	if len(*domainFlag) == 0 && len(*listen) == 0 {
-		fmt.Println("-listen or -domain parameter required\n")
+		fmt.Printf("-listen or -domain parameter required\n\n")
 		flag.Usage()
 		os.Exit(2)
 	}

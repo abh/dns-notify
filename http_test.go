@@ -4,28 +4,30 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
-	. "launchpad.net/gocheck"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+
+	. "gopkg.in/check.v1"
 )
 
-type HttpSuite struct {
+type HTTPSuite struct {
 	srv *httptest.Server
 	mux *http.ServeMux
 	uri *url.URL
 }
 
-var _ = Suite(&HttpSuite{})
+var _ = Suite(&HTTPSuite{})
 
-func (s *HttpSuite) SetUpSuite(c *C) {
+func (s *HTTPSuite) SetUpSuite(c *C) {
 	s.mux = buildMux()
 	s.srv = httptest.NewServer(s.mux)
 	s.uri, _ = url.Parse(s.srv.URL)
 
 }
 
-func (s *HttpSuite) TearDownSuite(c *C) {
+func (s *HTTPSuite) TearDownSuite(c *C) {
 	s.srv.Close()
 }
 
@@ -34,11 +36,18 @@ type jsResponse struct {
 	js   map[string]interface{}
 }
 
-func (s *HttpSuite) request(c *C, path, data string) (*jsResponse, error) {
+func (s *HTTPSuite) request(c *C, path, data string) (*jsResponse, error) {
 	uri := *s.uri
 	uri.Path = path
 
-	resp, err := http.Post(uri.String(), "application/json", bytes.NewBufferString(data))
+	req, err := http.NewRequest("POST", uri.String(), bytes.NewBufferString(data))
+	if err != nil {
+		c.Fatalf("Could build request %s: %s", uri.String(), err)
+	}
+	req.Header.Add("Accept-Encoding", "identity")
+	req.Header.Add("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		c.Fatalf("Could not post %s: %s", uri.String(), err)
 	}
@@ -48,6 +57,7 @@ func (s *HttpSuite) request(c *C, path, data string) (*jsResponse, error) {
 	c.Check(resp.StatusCode, Equals, 200)
 
 	if p, err := ioutil.ReadAll(resp.Body); err != nil {
+		log.Println("error from ReadAll(), read", string(p))
 		return nil, err
 	} else {
 
@@ -60,7 +70,7 @@ func (s *HttpSuite) request(c *C, path, data string) (*jsResponse, error) {
 	}
 }
 
-func (s *HttpSuite) TestNotify(c *C) {
+func (s *HTTPSuite) TestNotify(c *C) {
 
 	resp, err := s.request(c, "/api/v1/notify/example.com", "{}")
 	c.Assert(err, IsNil)

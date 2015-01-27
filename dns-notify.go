@@ -3,13 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/ant0ine/go-json-rest/rest"
-	"github.com/miekg/dns"
 	"net"
 	"net/http"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/ant0ine/go-json-rest/rest"
+	"github.com/miekg/dns"
 )
 
 type apiNotifyResponse struct {
@@ -17,6 +18,8 @@ type apiNotifyResponse struct {
 	Result []NotifyResponse
 }
 
+// NotifyResponse is returned by the API (as a list, since there can
+// be multiple responses)
 type NotifyResponse struct {
 	Server string
 	Result string
@@ -50,7 +53,7 @@ func main() {
 		return
 	}
 
-	startHttp(*listen)
+	startHTTP(*listen)
 }
 
 func buildMux() *http.ServeMux {
@@ -73,7 +76,7 @@ func buildMux() *http.ServeMux {
 
 }
 
-func startHttp(listen string) {
+func startHTTP(listen string) {
 	fmt.Printf("Listening on http://%s\n", listen)
 	err := http.ListenAndServe(listen, buildMux())
 	fmt.Printf("Could not listen to %s: %s", listen, err)
